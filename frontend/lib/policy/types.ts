@@ -37,6 +37,15 @@ export interface PolicyExecution {
   currency?: string;
 }
 
+export interface PolicyUiGeneration {
+  fallback_used?: boolean;
+  source?: string;
+  fallback_reason?: string;
+  fallback_label?: string;
+  fallback_message?: string;
+  source_documents?: string[];
+}
+
 export interface FinancialDiagnosisCard {
   id: string;
   category:
@@ -55,6 +64,7 @@ export interface FinalPolicy {
   detail: PolicyDetail;
   execution?: PolicyExecution;
   financial_diagnoses?: FinancialDiagnosisCard[];
+  ui_generation?: PolicyUiGeneration;
 }
 
 export interface ConsultationTurn {

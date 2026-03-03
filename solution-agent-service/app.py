@@ -600,15 +600,30 @@ def generate_policy_json() -> Any:
         if not isinstance(raw_ui_policy, dict):
             return jsonify({"success": False, "error": "UI transformer returned invalid policy payload"}), 500
 
+        normalization_securities = ui_result.get("normalization_securities")
+        if not isinstance(normalization_securities, list):
+            normalization_securities = step1_result.get("flat_securities", [])
+        normalization_portfolio = ui_result.get("normalization_portfolio")
+        if not isinstance(normalization_portfolio, dict):
+            normalization_portfolio = step1_result.get("portfolio", {})
+
         solution_agent = get_solution_agent()
         final_policy = solution_agent.normalize_ui_policy_json(
             payload=raw_ui_policy,
-            securities=step1_result.get("flat_securities", []),
-            portfolio=step1_result.get("portfolio", {}),
+            securities=normalization_securities,
+            portfolio=normalization_portfolio,
         )
-        final_policy["financial_diagnoses"] = _extract_financial_diagnoses(
-            step1_result.get("client_profile_analysis")
-        )
+        ui_generation = ui_result.get("ui_generation")
+        if isinstance(ui_generation, dict):
+            final_policy["ui_generation"] = ui_generation
+
+        fallback_diagnoses = ui_result.get("financial_diagnoses")
+        if isinstance(fallback_diagnoses, list) and fallback_diagnoses:
+            final_policy["financial_diagnoses"] = fallback_diagnoses
+        else:
+            final_policy["financial_diagnoses"] = _extract_financial_diagnoses(
+                step1_result.get("client_profile_analysis")
+            )
 
         return jsonify(final_policy), 200
 

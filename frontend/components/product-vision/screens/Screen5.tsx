@@ -79,6 +79,8 @@ export const Screen5 = ({
   isVoicePlaying,
   voiceStatus,
   activeVoiceSectionKey,
+  fallbackLabel,
+  fallbackMessage,
 }: {
   onProceed?: () => void;
   detail: PolicyDetail;
@@ -86,6 +88,8 @@ export const Screen5 = ({
   isVoicePlaying: boolean;
   voiceStatus: 'idle' | 'connecting' | 'connected' | 'disconnecting' | 'error';
   activeVoiceSectionKey?: string | null;
+  fallbackLabel?: string | null;
+  fallbackMessage?: string | null;
 }) => {
   const sections = Array.isArray(detail.sections) ? detail.sections : [];
   const currency = detail.portfolio?.currency || 'USD';
@@ -173,6 +177,19 @@ export const Screen5 = ({
         onWheel={onManualScrollIntent}
         onTouchMove={onManualScrollIntent}
       >
+        {fallbackLabel ? (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-500/10">
+            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-900 dark:text-amber-200">
+              {fallbackLabel}
+            </div>
+            {fallbackMessage ? (
+              <p className="mt-2 text-xs leading-relaxed text-amber-900 dark:text-amber-100">
+                {fallbackMessage}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
         {sections.map((section) => (
           <section
             key={section.id}

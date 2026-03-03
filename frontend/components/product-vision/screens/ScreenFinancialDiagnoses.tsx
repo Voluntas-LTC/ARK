@@ -8,11 +8,13 @@ import type { FinancialDiagnosisCard } from '@/lib/policy/types';
 
 interface ScreenFinancialDiagnosesProps {
   diagnoses: FinancialDiagnosisCard[];
+  fallbackLabel?: string | null;
   onNext?: () => void;
 }
 
 export const ScreenFinancialDiagnoses = ({
   diagnoses,
+  fallbackLabel,
   onNext,
 }: ScreenFinancialDiagnosesProps) => {
   const t = useScreenTranslation('screenFinancialDiagnoses');
@@ -79,6 +81,12 @@ export const ScreenFinancialDiagnoses = ({
       </div>
 
       <div className="flex-1 px-6 py-8 flex flex-col gap-6 bg-[#FAFAFA] dark:bg-black transition-colors duration-300">
+        {fallbackLabel ? (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+            {fallbackLabel}
+          </div>
+        ) : null}
+
         <div
           className="relative overflow-hidden rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none"
           onTouchStart={onTouchStart}

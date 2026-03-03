@@ -16,6 +16,7 @@ import { Screen6 } from './product-vision/screens/Screen6';
 import { Screen7 } from './product-vision/screens/Screen7';
 import { useConsultationVoiceAgent } from '@/hooks/useConsultationVoiceAgent';
 import { usePolicyExplanationVoiceAgent } from '@/hooks/usePolicyExplanationVoiceAgent';
+import { buildReferenceFallbackPolicy } from '@/lib/policy/fallback';
 import type { ConsultationTurn, FinalPolicy } from '@/lib/policy/types';
 
 type RetryPayload = {
@@ -61,7 +62,9 @@ const guessSectionKeyFromMessage = (
 export default function ProductVisionDemo() {
   const [currentScreen, setCurrentScreen] = useState(1);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [policy, setPolicy] = useState<FinalPolicy | null>(null);
+  const [policy, setPolicy] = useState<FinalPolicy | null>(() =>
+    buildReferenceFallbackPolicy('loading')
+  );
   const [isPolicyLoading, setIsPolicyLoading] = useState(false);
   const [policyError, setPolicyError] = useState<string | null>(null);
   const [retryPayload, setRetryPayload] = useState<RetryPayload | null>(null);
@@ -105,6 +108,12 @@ export default function ProductVisionDemo() {
     },
   };
   const financialDiagnoses = policy?.financial_diagnoses ?? [];
+  const fallbackLabel = policy?.ui_generation?.fallback_used
+    ? policy.ui_generation.fallback_label || 'Reference fallback content'
+    : null;
+  const fallbackMessage = policy?.ui_generation?.fallback_used
+    ? policy.ui_generation.fallback_message || null
+    : null;
 
   const policyVoiceContext = useMemo(() => {
     const sections = detailData.sections || [];
@@ -130,7 +139,8 @@ export default function ProductVisionDemo() {
   );
 
   const runPolicyPipeline = useCallback(async (payload: RetryPayload) => {
-    setCurrentScreen(5);
+    setPolicy(buildReferenceFallbackPolicy('loading'));
+    setCurrentScreen(6);
     setIsPolicyLoading(true);
     setPolicyError(null);
     setRetryPayload(payload);
@@ -156,10 +166,11 @@ export default function ProductVisionDemo() {
       setPolicy(body.policy as FinalPolicy);
       setIsPolicyLoading(false);
       setPolicyError(null);
-      setCurrentScreen(6);
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Policy generation failed';
+      setPolicy(buildReferenceFallbackPolicy('failed', message));
       setIsPolicyLoading(false);
-      setPolicyError(error instanceof Error ? error.message : 'Policy generation failed');
+      setPolicyError(message);
     }
   }, []);
 
@@ -231,6 +242,7 @@ export default function ProductVisionDemo() {
         component: (
           <ScreenFinancialDiagnoses
             diagnoses={financialDiagnoses}
+            fallbackLabel={fallbackLabel}
             onNext={() => setCurrentScreen(7)}
           />
         ),
@@ -243,6 +255,7 @@ export default function ProductVisionDemo() {
             menu={menuData}
             proposalIndex={policy?.proposal_index ?? 1}
             proposalCount={policy?.proposal_count ?? 1}
+            fallbackLabel={fallbackLabel}
           />
         ),
       },
@@ -256,6 +269,8 @@ export default function ProductVisionDemo() {
             }}
             detail={detailData}
             activeVoiceSectionKey={derivedPolicyVoiceSectionKey}
+            fallbackLabel={fallbackLabel}
+            fallbackMessage={fallbackMessage}
             onToggleVoiceExplanation={() => {
               if (isPolicyVoicePlaying) {
                 void stopPolicyVoiceExplanation();

@@ -29,11 +29,13 @@ export const Screen4 = ({
   menu,
   proposalIndex,
   proposalCount,
+  fallbackLabel,
 }: {
   onAnalyzeDepth?: () => void;
   menu: PolicyMenu;
   proposalIndex: number;
   proposalCount: number;
+  fallbackLabel?: string | null;
 }) => {
   const t = useScreenTranslation('screen4');
   const displayIndex = String(Math.max(1, proposalIndex)).padStart(2, '0');
@@ -64,6 +66,11 @@ export const Screen4 = ({
 
         <div className="w-full h-full bg-white border border-gray-200 shadow-xl shadow-gray-200/50 flex flex-col relative z-10 rounded-2xl overflow-hidden dark:bg-[#3B3B3D] dark:border-white/5 dark:shadow-none transition-colors duration-300">
           <div className="p-8 pb-0 shrink-0">
+            {fallbackLabel ? (
+              <div className="mb-4 inline-flex rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+                {fallbackLabel}
+              </div>
+            ) : null}
             <h3 className="text-3xl font-sans font-medium text-onyx leading-[1.1] mb-2 dark:text-white transition-colors duration-300">
               {menu.title || t.title}
             </h3>

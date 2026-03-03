@@ -24,7 +24,7 @@ export const ScreenLogo = ({ onNext }: ScreenLogoProps) => {
     >
       <div className={`animate-in fade-in zoom-in duration-1000 text-center`}>
         <h1 className="text-6xl font-sans font-bold tracking-tighter text-onyx dark:text-white transition-colors duration-300">
-          ARK
+          ARC.
         </h1>
       </div>
     </ScreenContainer>
